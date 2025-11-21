@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import type { Prisma } from '@prisma/client';
 import { prisma } from '@/lib/db';
 import { generatePaymentAddress } from '@/lib/key-management';
 import { trackPaymentAddress } from '@/lib/redis';
@@ -20,6 +21,8 @@ export async function POST(request: NextRequest) {
     // Generate a new payment address
     const { address } = await generatePaymentAddress();
 
+    const metadata = validatedData.metadata as Prisma.InputJsonValue | undefined;
+
     // Create payment record
     const payment = await prisma.payment.create({
       data: {
@@ -28,7 +31,7 @@ export async function POST(request: NextRequest) {
         paymentAddress: address,
         merchantId: validatedData.merchantId,
         orderId: validatedData.orderId,
-        metadata: validatedData.metadata || {},
+        metadata,
         status: 'pending',
       },
     });
