@@ -7,7 +7,7 @@ export async function POST(request: NextRequest) {
     // Verify webhook secret if configured
     const webhookSecret = process.env.HELIUS_WEBHOOK_SECRET;
     if (webhookSecret) {
-      const providedSecret = request.headers.get('x-webhook-secret');
+      const providedSecret = request.headers.get('x-webhook-secret') || request.nextUrl.searchParams.get('secret');
       if (!providedSecret || providedSecret !== webhookSecret) {
         return NextResponse.json(
           { success: false, error: 'Invalid webhook secret' },

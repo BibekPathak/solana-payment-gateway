@@ -105,13 +105,16 @@ export async function registerHeliusWebhook(webhookUrl: string, addresses: strin
     throw new Error('HELIUS_API_KEY environment variable is required');
   }
 
+  const webhookSecret = process.env.HELIUS_WEBHOOK_SECRET;
+  const finalWebhookUrl = webhookSecret ? `${webhookUrl}?secret=${encodeURIComponent(webhookSecret)}` : webhookUrl;
+
   const response = await fetch(`https://api.helius.xyz/v0/webhooks?api-key=${heliusApiKey}`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
     },
     body: JSON.stringify({
-      webhookURL: webhookUrl,
+      webhookURL: finalWebhookUrl,
       transactionTypes: ['Any'],
       accountAddresses: addresses,
       webhookType: 'enhanced',
