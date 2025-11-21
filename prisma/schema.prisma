@@ -1,0 +1,70 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Payment {
+  id            String   @id @default(cuid())
+  amount        Float
+  currency      String   @default("SOL")
+  status        String   @default("pending") // pending, completed, failed, expired
+  paymentAddress String  @unique
+  merchantId    String?
+  orderId       String?
+  metadata      Json?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  completedAt   DateTime?
+  transactionSignature String?
+
+  @@index([status])
+  @@index([paymentAddress])
+  @@index([merchantId])
+}
+
+model PaymentAddress {
+  id            String   @id @default(cuid())
+  address       String   @unique
+  keyPartId     String   // Reference to which key part this address belongs to
+  isActive      Boolean  @default(true)
+  balance       Float    @default(0)
+  lastSweptAt   DateTime?
+  createdAt     DateTime @default(now())
+
+  @@index([address])
+  @@index([isActive])
+}
+
+model KeyPart {
+  id            String   @id @default(cuid())
+  keyPartIndex  Int      // Which part of the split key (0, 1, 2, etc.)
+  encryptedPart String   // Encrypted key part stored in DB
+  isActive      Boolean  @default(true)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@unique([keyPartIndex])
+  @@index([isActive])
+}
+
+model SweepTransaction {
+  id            String   @id @default(cuid())
+  fromAddress   String
+  toAddress     String
+  amount        Float
+  signature     String   @unique
+  status        String   // pending, completed, failed
+  createdAt     DateTime @default(now())
+  completedAt   DateTime?
+
+  @@index([fromAddress])
+  @@index([status])
+}
+
