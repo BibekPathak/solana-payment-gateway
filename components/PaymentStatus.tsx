@@ -208,7 +208,7 @@ export default function PaymentStatus({
                 value={payment.address}
                 size={256}
                 level="H"
-                includeMargin={true}
+                
               />
             </div>
             <p className="text-xs text-center text-gray-500 dark:text-gray-400 mt-4">
