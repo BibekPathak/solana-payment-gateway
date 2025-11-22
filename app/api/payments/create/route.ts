@@ -60,8 +60,16 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+    const isDevelopment = process.env.NODE_ENV === 'development';
+
     return NextResponse.json(
-      { success: false, error: 'Failed to create payment' },
+      //{ success: false, error: 'Failed to create payment' },
+      {
+        success: false,
+        error: 'Failed to create payment',
+        ...(isDevelopment ? { details: errorMessage, stack: error instanceof Error ? error.stack : undefined } : {}),
+      },
       { status: 500 }
     );
   }
